@@ -397,6 +397,20 @@
       return this._objects;
     },
 
+
+    /**
+     * Returns object which has the supplied UID
+     * @method getObjectByUID
+     * @return object
+     */
+    getObjectByUID: function(uid) {
+      for (var i in this._objects) {
+        if (this._objects[i].uid == uid) {
+          return this._objects[i];
+        } 
+      };
+    },
+
     /**
      * Clears specified context of canvas element
      * @method clearContext

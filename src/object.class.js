@@ -127,6 +127,15 @@
      */
     initialize: function(options) {
       options && this.setOptions(options);
+
+      // do options supply us with a uid upon initialization? e.g. when executing loadFromJSON()
+      if (typeof options == 'object') {
+        if (typeof options.uid == 'undefined') {
+          this.uid = parseInt(Math.random().toString().substr(2,20)); // generate uid (this is not unique!)
+        } else {
+          this.uid = options.uid; // use uid from options
+        }        
+      }
     },
 
     /**
@@ -183,7 +192,8 @@
         selectable:       this.selectable,
         hasControls:      this.hasControls,
         hasBorders:       this.hasBorders,
-        hasRotatingPoint: this.hasRotatingPoint
+        hasRotatingPoint: this.hasRotatingPoint,
+        uid:              this.uid
       };
 
       if (!this.includeDefaultValues) {

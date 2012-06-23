@@ -1,6 +1,12 @@
 /*! Fabric.js Copyright 2008-2012, Bitsonnet (Juriy Zaytsev, Maxim Chernyak) */
 
-var fabric = fabric || { version: "0.8.25" };
+/* Fork by Hauke Adler: 
+
+120623 - add rudimentary support for canvas.getObjectByUID()
+
+*/
+
+var fabric = fabric || { version: "0.8.25-ha" };
 
 if (typeof exports != 'undefined') {
   exports.fabric = fabric;
