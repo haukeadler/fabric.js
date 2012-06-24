@@ -405,7 +405,7 @@
      */
     getObjectByUID: function(uid) {
       for (var i in this._objects) {
-        if (this._objects[i].uid == uid) {
+        if ((this._objects[i].uid == uid) && (uid)) {
           return this._objects[i];
         } 
       };
