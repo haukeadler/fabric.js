@@ -492,6 +492,6 @@
     // TODO (kangax): implement this
   };
   
-  fabric.Text.async = true;
+  fabric.Text.async = false;
 
 })(typeof exports != 'undefined' ? exports : this);
