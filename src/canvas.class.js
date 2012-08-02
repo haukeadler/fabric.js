@@ -106,6 +106,13 @@
     hoverCursor:            'move',
 
     /**
+     * Default cursor value used when moving an object on canvas
+     * @property
+     * @type String
+     */
+    moveCursor:             'move',
+
+    /**
      * Default cursor value used for the entire canvas
      * @property
      * @type String
@@ -229,6 +236,7 @@
         if (this.stateful && target.hasStateChanged()) {
           target.isMoving = false;
           this.fire('object:modified', { target: target });
+          target.fire('modified');
         }
       }
 
@@ -260,6 +268,7 @@
       }, 50);
 
       this.fire('mouse:up', { target: target, e: e });
+      target && target.fire('mouseup', { e: e })
     },
 
     /**
@@ -282,8 +291,6 @@
 
         // capture coordinates immediately; this allows to draw dots (when movement never occurs)
         this._captureDrawingPath(e);
-        this.fire('mouse:down', { e: e });
-
         this.fire('mouse:down', { e: e });
         return;
       }
@@ -333,6 +340,7 @@
       this.renderAll();
 
       this.fire('mouse:down', { target: target, e: e });
+      target && target.fire('mousedown', { e: e });
     },
 
     /**
@@ -411,12 +419,14 @@
             this.fire('object:rotating', {
               target: this._currentTransform.target
             });
+            this._currentTransform.target.fire('rotating');
           }
           if (!this._currentTransform.target.hasRotatingPoint) {
             this._scaleObject(x, y);
             this.fire('object:scaling', {
               target: this._currentTransform.target
             });
+            this._currentTransform.target.fire('scaling');
           }
         }
         else if (this._currentTransform.action === 'scale') {
@@ -424,6 +434,7 @@
           this.fire('object:scaling', {
             target: this._currentTransform.target
           });
+          this._currentTransform.target.fire('scaling');
         }
         else if (this._currentTransform.action === 'scaleX') {
           this._scaleObject(x, y, 'x');
@@ -431,6 +442,7 @@
           this.fire('object:scaling', {
             target: this._currentTransform.target
           });
+          this._currentTransform.target.fire('scaling');
         }
         else if (this._currentTransform.action === 'scaleY') {
           this._scaleObject(x, y, 'y');
@@ -438,6 +450,7 @@
           this.fire('object:scaling', {
             target: this._currentTransform.target
           });
+          this._currentTransform.target.fire('scaling');
         }
         else {
           this._translateObject(x, y);
@@ -445,11 +458,16 @@
           this.fire('object:moving', {
             target: this._currentTransform.target
           });
+
+          this._setCursor(this.moveCursor);
+
+          this._currentTransform.target.fire('moving');
         }
         // only commit here. when we are actually moving the pictures
         this.renderAll();
       }
       this.fire('mouse:move', { target: target, e: e });
+      target && target.fire('mousemove', { e: e });
     },
 
     /**
@@ -535,7 +553,7 @@
           ? 'scaleX'
           : (corner === 'mt' || corner === 'mb')
             ? 'scaleY'
-            : (corner === 'mtr' || corner === 'mbr')
+            : corner === 'mtr'
               ? 'rotate'
               : (target.hasRotatingPoint)
                 ? 'scale'
@@ -791,10 +809,10 @@
         else {
           if (corner in cursorMap) {
             s.cursor = cursorMap[corner];
-          } else if (corner === 'mtr' || corner === 'mbr') {
+          } else if (corner === 'mtr' && target.hasRotatingPoint) {
             s.cursor = this.rotationCursor;
           } else {
-            s.cursor = this.defaulCursor;
+            s.cursor = this.defaultCursor;
             return false;
           }
         }
@@ -1008,6 +1026,7 @@
       this.renderAll();
 
       this.fire('object:selected', { target: object, e: e });
+      object.fire('selected', { e: e });
       return this;
     },
 

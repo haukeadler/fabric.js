@@ -162,11 +162,11 @@
     setBackgroundImage: function (url, callback, options) {
       return fabric.util.loadImage(url, function(img) {
         this.backgroundImage = img;
-        if (options && options.backgroundOpacity) {
-            this.backgroundOpacity = options.backgroundOpacity;
+        if (options && ('backgroundImageOpacity' in options)) {
+            this.backgroundImageOpacity = options.backgroundImageOpacity;
         }
-        if (options && options.backgroundStretch) {
-            this.backgroundStretch = options.backgroundStretch;
+        if (options && ('backgroundImageStretch' in options)) {
+            this.backgroundImageStretch = options.backgroundImageStretch;
         }
         callback && callback();
       }, this);
@@ -212,6 +212,8 @@
 
       this.width = parseInt(this.lowerCanvasEl.width, 10) || 0;
       this.height = parseInt(this.lowerCanvasEl.height, 10) || 0;
+
+      if (!this.lowerCanvasEl.style) return;
 
       this.lowerCanvasEl.style.width = this.width + 'px';
       this.lowerCanvasEl.style.height = this.height + 'px';
@@ -360,6 +362,7 @@
         this.stateful && arguments[i].setupState();
         arguments[i].setCoords();
         this.fire('object:added', { target: arguments[i] });
+        arguments[i].fire('added');
       }
       this.renderOnAddition && this.renderAll();
       return this;
@@ -385,6 +388,7 @@
       object.setCoords();
       this.renderAll();
       this.fire('object:added', { target: object });
+      object.fire('added');
       return this;
     },
 
@@ -583,12 +587,17 @@
           origHeight = this.getHeight(),
           scaledWidth = origWidth * multiplier,
           scaledHeight = origHeight * multiplier,
-          activeObject = this.getActiveObject();
+          activeObject = this.getActiveObject(),
+          activeGroup = this.getActiveGroup();
 
       this.setWidth(scaledWidth).setHeight(scaledHeight);
       this.contextTop.scale(multiplier, multiplier);
 
-      if (activeObject) {
+      if (activeGroup) {
+        // not removing group due to complications with restoring it with correct state afterwords
+        this._tempRemoveBordersCornersFromGroup(activeGroup);
+      }
+      else if (activeObject) {
         this.deactivateAll();
       }
 
@@ -604,12 +613,38 @@
       this.contextTop.scale(1 / multiplier,  1 / multiplier);
       this.setWidth(origWidth).setHeight(origHeight);
 
-      if (activeObject) {
+      if (activeGroup) {
+        this._restoreBordersCornersOnGroup(activeGroup);
+      }
+      else if (activeObject) {
         this.setActiveObject(activeObject);
       }
+
       this.renderAll();
 
       return dataURL;
+    },
+
+    _tempRemoveBordersCornersFromGroup: function(group) {
+      group.origHideCorners = group.hideCorners;
+      group.origBorderColor = group.borderColor;
+
+      group.hideCorners = true;
+      group.borderColor = 'rgba(0,0,0,0)';
+
+      group.forEachObject(function(o) {
+        o.origBorderColor = o.borderColor;
+        o.borderColor = 'rgba(0,0,0,0)';
+      });
+    },
+    _restoreBordersCornersOnGroup: function(group) {
+      group.hideCorners = group.origHideCorners;
+      group.borderColor = group.origBorderColor;
+
+      group.forEachObject(function(o) {
+        o.borderColor = o.origBorderColor;
+        delete o.origBorderColor;
+      });
     },
 
     /**

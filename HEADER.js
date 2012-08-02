@@ -1,4 +1,4 @@
-/*! Fabric.js Copyright 2008-2012, Bitsonnet (Juriy Zaytsev, Maxim Chernyak) */
+/*! Fabric.js Copyright 2008-2012, Printio (Juriy Zaytsev, Maxim Chernyak) */
 
 /* Fork by Hauke Adler: 
 
@@ -6,7 +6,7 @@
 
 */
 
-var fabric = fabric || { version: "0.8.25-ha" };
+var fabric = fabric || { version: "0.8.42-ha" };
 
 if (typeof exports != 'undefined') {
   exports.fabric = fabric;
@@ -28,3 +28,10 @@ else {
  * @type boolean
  */
 fabric.isTouchSupported = "ontouchstart" in fabric.document.documentElement;
+
+/**
+ * True when in environment that's probably Node.js
+ * @property isLikelyNode
+ * @type boolean
+ */
+fabric.isLikelyNode = typeof Buffer !== 'undefined' && typeof window === 'undefined';

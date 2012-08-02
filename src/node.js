@@ -55,10 +55,14 @@
   fabric.loadSVGFromURL = function(url, callback) {
     url = url.replace(/^\n\s*/, '').replace(/\?.*$/, '').trim();
     request(url, '', function(body) {
-      var doc = new DOMParser().parseFromString(body);
-      fabric.parseSVGDocument(doc.documentElement, function(results, options) {
-        callback(results, options);
-      });
+      fabric.loadSVGFromString(body, callback);
+    });
+  };
+
+  fabric.loadSVGFromString = function(string, callback) {
+    var doc = new DOMParser().parseFromString(string);
+    fabric.parseSVGDocument(doc.documentElement, function(results, options) {
+      callback(results, options);
     });
   };
 
@@ -79,6 +83,13 @@
     });
   };
 
+  /**
+   * Only available when running fabric on node.js
+   * @method createCanvasForNode
+   * @param width Canvas width
+   * @param height Canvas height
+   * @return {Object} wrapped canvas instance
+   */
   fabric.createCanvasForNode = function(width, height) {
 
     var canvasEl = fabric.document.createElement('canvas'),
